@@ -18,12 +18,14 @@ class Item(Resource):
                         )
     @jwt_required()
     def get(self, name):
-        item = ItemModel.find_item_by_name(name)
-        if item:
-            return item.json()
-        else:
-            return {"message": f"item {name} not found"}, 404
-
+        try:
+            item = ItemModel.find_item_by_name(name)
+            if item:
+                return item.json()
+            else:
+                return {"message": f"item {name} not found"}, 404
+        except:
+            return {"message": "Authentication required"}, 401
     def post(self, name):
         if ItemModel.find_item_by_name(name):
             return {"message": f"This item {name} already exists"}, 400
@@ -68,4 +70,7 @@ class Item(Resource):
 class ItemsList(Resource):
     @jwt_required()
     def get(self):
-        return {"items": [item.json() for item in ItemModel.query.all()]}
+        try:
+            return {"items": [item.json() for item in ItemModel.query.all()]}
+        except:
+            return {"message": "Authentication required"}, 401
